@@ -27,7 +27,7 @@ if str(_REPO) not in sys.path:
 
 from worker.run_train import run_train  # noqa: E402
 
-API_BASE = os.environ.get("API_BASE_URL", "http://100.91.113.98").rstrip("/")
+API_BASE = os.environ.get("API_BASE_URL", "http://100.91.113.98").strip().rstrip("/")
 WORKER_API_KEY = os.environ.get("WORKER_API_KEY", "")
 WORKER_ID = os.environ.get("WORKER_ID", socket.gethostname())
 WORKER_HOST = os.environ.get("WORKER_HOST", socket.gethostname())
