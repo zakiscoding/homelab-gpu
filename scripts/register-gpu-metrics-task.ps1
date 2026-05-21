@@ -13,4 +13,4 @@ $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
 
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger `
     -Settings $settings -Force | Out-Null
-Write-Output "Registered $TaskName (every 30s)"
+Write-Output "Registered $TaskName (every 1m)"
