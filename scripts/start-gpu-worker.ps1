@@ -3,8 +3,17 @@ $ErrorActionPreference = "Stop"
 $Repo = Split-Path -Parent $PSScriptRoot
 Set-Location $Repo
 
+$envFile = Join-Path $Repo ".env"
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+            Set-Item -Path "env:$($matches[1].Trim())" -Value $matches[2].Trim()
+        }
+    }
+}
+
 if (-not $env:WORKER_API_KEY) {
-    Write-Error "Set WORKER_API_KEY (must match iMac homelab-services .env)"
+    Write-Error "Set WORKER_API_KEY in .env (must match iMac homelab-services .env)"
 }
 
 if (-not $env:API_BASE_URL) {

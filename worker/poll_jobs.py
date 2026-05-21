@@ -94,6 +94,12 @@ def run_once(client: httpx.Client) -> bool:
 
 
 def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="GPU train job worker (Phase 0A)")
+    parser.add_argument("--once", action="store_true", help="Run one poll cycle then exit")
+    args = parser.parse_args()
+
     if not WORKER_API_KEY:
         print("WORKER_API_KEY is not set", file=sys.stderr)
         sys.exit(1)
@@ -106,6 +112,8 @@ def main() -> None:
                 run_once(client)
             except httpx.HTTPError as e:
                 print(f"[worker] HTTP error: {e}")
+            if args.once:
+                break
             time.sleep(POLL_INTERVAL)
 
 
