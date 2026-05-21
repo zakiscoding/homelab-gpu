@@ -17,17 +17,19 @@ $memUsed = [double]$parts[1]
 $memTotal = [double]$parts[2]
 $temp = [double]$parts[3]
 
-$body = @"
-# TYPE homelab_gpu_utilization_percent gauge
-homelab_gpu_utilization_percent{instance="$Instance",job="gpu"} $util
-# TYPE homelab_gpu_memory_used_mib gauge
-homelab_gpu_memory_used_mib{instance="$Instance",job="gpu"} $memUsed
-# TYPE homelab_gpu_memory_total_mib gauge
-homelab_gpu_memory_total_mib{instance="$Instance",job="gpu"} $memTotal
-# TYPE homelab_gpu_temperature_c gauge
-homelab_gpu_temperature_c{instance="$Instance",job="gpu"} $temp
-"@
+$lines = @(
+    "# TYPE homelab_gpu_utilization_percent gauge",
+    "homelab_gpu_utilization_percent{instance=`"$Instance`",job=`"gpu`"} $util",
+    "# TYPE homelab_gpu_memory_used_mib gauge",
+    "homelab_gpu_memory_used_mib{instance=`"$Instance`",job=`"gpu`"} $memUsed",
+    "# TYPE homelab_gpu_memory_total_mib gauge",
+    "homelab_gpu_memory_total_mib{instance=`"$Instance`",job=`"gpu`"} $memTotal",
+    "# TYPE homelab_gpu_temperature_c gauge",
+    "homelab_gpu_temperature_c{instance=`"$Instance`",job=`"gpu`"} $temp"
+)
+$body = ($lines -join "`n") + "`n"
 
 $uri = "$PushUrl/metrics/job/gpu/instance/$Instance"
-Invoke-RestMethod -Uri $uri -Method Put -Body $body -ContentType "text/plain; version=0.0.4"
+Invoke-WebRequest -Uri $uri -Method Put -Body ([System.Text.Encoding]::UTF8.GetBytes($body)) `
+    -ContentType "text/plain; version=0.0.4; charset=utf-8" -UseBasicParsing | Out-Null
 Write-Output "pushed gpu metrics instance=$Instance util=$util% mem=${memUsed}/${memTotal}MiB"
