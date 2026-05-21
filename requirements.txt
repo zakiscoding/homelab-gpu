@@ -1,0 +1,4 @@
+# Pin versions when you add a training stack (PyTorch, transformers, unsloth, etc.)
+# Example after choosing stack:
+# torch>=2.2.0
+# transformers>=4.40.0

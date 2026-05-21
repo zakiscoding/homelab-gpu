@@ -1,0 +1,29 @@
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# Training artifacts — never commit
+checkpoints/
+runs/
+wandb/
+outputs/
+data/
+datasets/
+models/
+*.pt
+*.pth
+*.safetensors
+*.gguf
+*.bin
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
