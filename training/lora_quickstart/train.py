@@ -92,12 +92,15 @@ def run_qlora(
     model = get_peft_model(model, lora)
 
     def tokenize(batch):
-        return tokenizer(
+        out = tokenizer(
             batch["text"],
             truncation=True,
             max_length=int(payload.get("max_seq_len", 512)),
             padding="max_length",
         )
+        # Causal LM: labels = input_ids for Trainer loss
+        out["labels"] = [ids[:] for ids in out["input_ids"]]
+        return out
 
     tokenized = ds.map(tokenize, batched=True, remove_columns=ds.column_names)
 
