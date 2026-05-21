@@ -9,6 +9,7 @@ accelerate>=0.30.0
 datasets>=2.19.0
 python-dotenv>=1.0.0
 httpx>=0.28.0
+redis>=5.2.0
 
 # Interactive fine-tuning / experiments
 jupyterlab>=4.0.0

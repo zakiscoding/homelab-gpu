@@ -25,6 +25,7 @@ _REPO = Path(__file__).resolve().parents[1]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
+from worker.job_wake import WAKE_TRAIN, wait_for_wake  # noqa: E402
 from worker.run_train import run_train  # noqa: E402
 
 API_BASE = os.environ.get("API_BASE_URL", "http://100.91.113.98").strip().rstrip("/")
@@ -150,18 +151,26 @@ def main() -> None:
         print("WORKER_API_KEY is not set", file=sys.stderr)
         sys.exit(1)
 
-    print(f"[worker] id={WORKER_ID} host={WORKER_HOST} api={API_BASE} poll={POLL_INTERVAL}s")
+    notify = os.environ.get("JOB_NOTIFY_ENABLED", "true").lower() == "true"
+    print(
+        f"[worker] id={WORKER_ID} host={WORKER_HOST} api={API_BASE} "
+        f"poll={POLL_INTERVAL}s notify={notify}"
+    )
     train_timeout = float(os.environ.get("WORKER_TRAIN_TIMEOUT_SEC", "1800"))
     with httpx.Client(timeout=train_timeout) as client:
         reset_stale(client)
         while True:
             try:
-                run_once(client)
+                processed = run_once(client)
             except httpx.HTTPError as e:
                 print(f"[worker] HTTP error: {e}")
+                processed = False
             if args.once:
                 break
-            time.sleep(POLL_INTERVAL)
+            if not processed:
+                wait_for_wake([WAKE_TRAIN], POLL_INTERVAL)
+            else:
+                time.sleep(0.2)
 
 
 if __name__ == "__main__":
