@@ -1,5 +1,5 @@
 # GPU training — zak_pc (RTX 5070)
-# Install: .\scripts\setup-venv.ps1  OR  pip install -r requirements.txt
+# Install: .\scripts\setup-venv.ps1
 
 torch>=2.5.0
 torchvision
@@ -7,4 +7,11 @@ transformers>=4.40.0
 peft>=0.10.0
 accelerate>=0.30.0
 datasets>=2.19.0
+python-dotenv>=1.0.0
+
+# Interactive fine-tuning / experiments
+jupyterlab>=4.0.0
+ipykernel>=6.29.0
+ipywidgets>=8.0.0
+
 # Add when you pick a stack: unsloth, bitsandbytes, trl, etc.

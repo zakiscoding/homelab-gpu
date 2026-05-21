@@ -12,13 +12,15 @@ First fine-tune project placeholder. Use **QLoRA** — full fine-tune usually do
 ## Data layout (local disk, not git)
 
 ```text
-D:\homelab-data\
+C:\Users\zakar\homelab-data\
 ├── datasets\
 │   └── my-task\
 │       └── train.jsonl
 └── checkpoints\
     └── my-task-lora\
 ```
+
+**Jupyter:** use [notebooks/01_gpu_and_paths.ipynb](../../notebooks/01_gpu_and_paths.ipynb) — start with `.\scripts\start-jupyter.ps1`
 
 ## Next steps (pick a stack)
 

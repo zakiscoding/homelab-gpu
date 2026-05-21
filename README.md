@@ -24,7 +24,8 @@ homelab-gpu/
 ├── .gitignore
 ├── requirements.txt      # Python deps for training (pin as you add tools)
 ├── configs/              # YAML/JSON training configs (small files only)
-├── scripts/              # PowerShell helpers (env, launch, stop Ollama before train)
+├── scripts/              # PowerShell helpers (env, launch, stop Ollama, Jupyter)
+├── notebooks/            # JupyterLab — GPU check, LoRA experiments
 └── training/             # Training entrypoints (add per project)
 ```
 
