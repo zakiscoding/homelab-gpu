@@ -1,11 +1,15 @@
-# GPU scripts
+# Scripts (GPU PC — `zak_pc`)
 
-PowerShell helpers for `zak_pc` (Windows).
+| Script | Purpose |
+|--------|---------|
+| `stop-ollama.ps1` | Stop Ollama to free VRAM before training |
+| `setup-venv.ps1` | Create `.venv` and `pip install -r requirements.txt` |
+| `verify-gpu.ps1` | `nvidia-smi` + optional torch CUDA check |
 
-Planned examples:
+Run from repo root:
 
-- `stop-ollama.ps1` — free VRAM before training
-- `start-ollama.ps1` — restore inference after training
-- `check-gpu.ps1` — `nvidia-smi` + disk space
-
-Document new scripts in [homelab SETUP-LOG](https://github.com/zakiscoding/homelab/blob/main/docs/SETUP-LOG.md).
+```powershell
+cd C:\Users\zakar\homelab-gpu
+.\scripts\setup-venv.ps1
+.\scripts\verify-gpu.ps1
+```

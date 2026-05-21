@@ -1,4 +1,10 @@
-# Pin versions when you add a training stack (PyTorch, transformers, unsloth, etc.)
-# Example after choosing stack:
-# torch>=2.2.0
-# transformers>=4.40.0
+# GPU training — zak_pc (RTX 5070)
+# Install: .\scripts\setup-venv.ps1  OR  pip install -r requirements.txt
+
+torch>=2.5.0
+torchvision
+transformers>=4.40.0
+peft>=0.10.0
+accelerate>=0.30.0
+datasets>=2.19.0
+# Add when you pick a stack: unsloth, bitsandbytes, trl, etc.

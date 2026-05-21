@@ -1,0 +1,4 @@
+# Copy to paths.yaml (gitignored) or use .env on GPU PC
+checkpoint_dir: C:/Users/zakar/homelab-data/checkpoints
+dataset_dir: C:/Users/zakar/homelab-data/datasets
+base_model: meta-llama/Llama-3.2-3B-Instruct  # example — needs HF_TOKEN for gated models
