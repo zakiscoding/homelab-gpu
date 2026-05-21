@@ -7,7 +7,7 @@ $envFile = Join-Path $Repo ".env"
 if (Test-Path $envFile) {
     Get-Content $envFile | ForEach-Object {
         if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
-            Set-Item -Path "env:$($matches[1].Trim())" -Value $matches[2].Trim()
+            [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), 'Process')
         }
     }
 }
