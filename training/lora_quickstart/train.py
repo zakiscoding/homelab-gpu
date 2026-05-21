@@ -34,7 +34,7 @@ def _resolve_dataset(payload: dict) -> Path:
         path = DATASET_DIR / version / "train.jsonl"
         if path.exists():
             return path
-    return _TRAINING / "lora-quickstart" / "data" / "smoke_train.jsonl"
+    return Path(__file__).resolve().parent / "smoke_train.jsonl"
 
 
 def run_qlora(
