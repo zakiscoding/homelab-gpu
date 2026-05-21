@@ -24,7 +24,8 @@ homelab-gpu/
 ├── .gitignore
 ├── requirements.txt      # Python deps for training (pin as you add tools)
 ├── configs/              # YAML/JSON training configs (small files only)
-├── scripts/              # PowerShell helpers (env, launch, stop Ollama, Jupyter)
+├── scripts/              # PowerShell helpers (env, launch, stop Ollama, Jupyter, GPU worker)
+├── worker/               # Phase 0A — poll_jobs.py, run_train.py (MVW loop → iMac API)
 ├── notebooks/            # JupyterLab — GPU check, LoRA experiments
 └── training/             # Training entrypoints (add per project)
 ```
@@ -48,6 +49,17 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
+
+## Phase 0A GPU worker
+
+Polls iMac for `train` jobs (Postgres control plane). Docs: [homelab PHASE-0A](https://github.com/zakiscoding/homelab/blob/main/docs/PHASE-0A.md).
+
+```powershell
+# .env: API_BASE_URL=http://100.91.113.98, WORKER_API_KEY=<match iMac .env>
+.\scripts\start-gpu-worker.ps1
+```
+
+RTX 5070: stub train in 0A does not use CUDA; real LoRA needs `stop-ollama` first.
 
 ## Before a long training run
 
