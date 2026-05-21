@@ -8,7 +8,7 @@ loop:
   mark succeeded / failed (transient → auto-retry on API)
   sleep
 
-RTX 5070: run scripts/stop-ollama.ps1 before real training (stub does not need GPU).
+RTX 5070: QLoRA default (TRAIN_MODE=qlora); stub for gate tests. stop-ollama runs in train.
 """
 
 from __future__ import annotations
@@ -72,6 +72,24 @@ def claim_job(client: httpx.Client) -> dict | None:
     return r.json()
 
 
+def register_experiment(client: httpx.Client, job_id: str, manifest: dict) -> None:
+    r = client.post(
+        f"{API_BASE}/internal/worker/jobs/{job_id}/experiment",
+        headers=_headers(),
+        json={
+            "dataset_version": manifest.get("dataset_version"),
+            "model_version": manifest.get("model_version"),
+            "output_path": manifest.get("adapter_path"),
+            "hyperparams": {
+                "base_model": manifest.get("base_model"),
+                "train_mode": manifest.get("train_mode"),
+                "use_4bit": manifest.get("use_4bit"),
+            },
+        },
+    )
+    r.raise_for_status()
+
+
 def mark_succeeded(client: httpx.Client, job_id: str) -> None:
     r = client.post(
         f"{API_BASE}/internal/worker/jobs/{job_id}/succeeded",
@@ -102,9 +120,14 @@ def run_once(client: httpx.Client) -> bool:
     job_id = job["id"]
     attempt = job.get("attempt", 0)
     print(f"[worker] claimed job {job_id} (attempt={attempt})")
+    payload = job.get("payload") or {}
     try:
-        artifact_dir = run_train(job_id)
+        artifact_dir, manifest = run_train(job_id, payload)
         print(f"[worker] artifacts at {artifact_dir}")
+        try:
+            register_experiment(client, job_id, manifest)
+        except Exception as exp_err:
+            print(f"[worker] experiment register warning: {exp_err}")
         mark_succeeded(client, job_id)
         print(f"[worker] job {job_id} succeeded")
     except Exception as e:
@@ -128,7 +151,8 @@ def main() -> None:
         sys.exit(1)
 
     print(f"[worker] id={WORKER_ID} host={WORKER_HOST} api={API_BASE} poll={POLL_INTERVAL}s")
-    with httpx.Client(timeout=60.0) as client:
+    train_timeout = float(os.environ.get("WORKER_TRAIN_TIMEOUT_SEC", "1800"))
+    with httpx.Client(timeout=train_timeout) as client:
         reset_stale(client)
         while True:
             try:

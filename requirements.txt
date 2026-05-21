@@ -15,4 +15,5 @@ jupyterlab>=4.0.0
 ipykernel>=6.29.0
 ipywidgets>=8.0.0
 
-# Add when you pick a stack: unsloth, bitsandbytes, trl, etc.
+bitsandbytes>=0.43.0; platform_system != "Darwin"
+# Phase 3 QLoRA: TRAIN_MODE=qlora (default), TRAIN_MAX_STEPS=30, TRAIN_USE_4BIT=true
