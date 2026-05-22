@@ -50,6 +50,28 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+## Ollama (inference, LAN / Tailscale)
+
+Ollama must listen on **`0.0.0.0:11434`** so the iMac API and web UI can reach it.
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/install-ollama-serve-task.ps1` | **Admin** — scheduled task `HomelabOllamaServe` + firewall |
+| `scripts/serve-ollama.bat` | `OLLAMA_HOST` + `ollama serve` |
+| `scripts/start-ollama.ps1` | Quick start / run existing task |
+| `scripts/stop-ollama.ps1` | Stop Ollama before training (free VRAM) |
+
+```powershell
+# First time (Admin)
+.\scripts\install-ollama-serve-task.ps1
+
+# If chat hangs in the web UI
+schtasks /Run /TN HomelabOllamaServe
+curl.exe http://100.88.71.33:11434/api/tags
+```
+
+Full runbook: [homelab gpu-node.md](https://github.com/zakiscoding/homelab/blob/main/docs/nodes/gpu-node.md).
+
 ## Phase 0A GPU worker
 
 Polls iMac for `train` jobs (Postgres control plane). Docs: [homelab PHASE-0A](https://github.com/zakiscoding/homelab/blob/main/docs/PHASE-0A.md).
@@ -71,7 +93,12 @@ Stop-Process -Name ollama* -Force -ErrorAction SilentlyContinue
 nvidia-smi
 ```
 
-Restart Ollama after training when you need inference again.
+Restart Ollama after training when you need inference again:
+
+```powershell
+schtasks /Run /TN HomelabOllamaServe
+# or: .\scripts\start-ollama.ps1
+```
 
 ## Related repos
 
