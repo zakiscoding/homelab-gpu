@@ -72,6 +72,24 @@ curl.exe http://100.88.71.33:11434/api/tags
 
 Full runbook: [homelab gpu-node.md](https://github.com/zakiscoding/homelab/blob/main/docs/nodes/gpu-node.md).
 
+## Reaction vision (FER CNN, port 8100)
+
+Separate from Ollama — serves `POST /infer/reaction` for the homelab-web **Reactions** page.
+
+| Item | Detail |
+|------|--------|
+| Port | `8100` on `0.0.0.0` (Tailscale `100.88.71.33`) |
+| iMac proxy | `GPU_VISION_URL` in homelab-services `.env` |
+| Docs | [homelab vision-reactions.md](https://github.com/zakiscoding/homelab/blob/main/docs/services/vision-reactions.md) |
+
+```powershell
+# When scripts are present in this repo:
+.\scripts\start-reaction-serve-bg.ps1
+curl.exe http://127.0.0.1:8100/health
+```
+
+Stop Ollama first if both compete for VRAM on the same GPU.
+
 ## Phase 0A GPU worker
 
 Polls iMac for `train` jobs (Postgres control plane). Docs: [homelab PHASE-0A](https://github.com/zakiscoding/homelab/blob/main/docs/PHASE-0A.md).
