@@ -163,6 +163,16 @@ def run_once(client: httpx.Client) -> bool:
             register_experiment(client, job_id, manifest)
         except Exception as exp_err:
             print(f"[worker] experiment register warning: {exp_err}")
+        if os.environ.get("AUTO_PUBLISH_OLLAMA", "").lower() in ("1", "true", "yes"):
+            # merge + GGUF + Ollama load can take minutes; keep the lease alive meanwhile
+            with LeaseKeepAlive(job_id):
+                try:
+                    from training.lora_quickstart.publish import publish_job
+
+                    pub = publish_job(job_id, restart_ollama=True)
+                    print(f"[worker] published Ollama model: {pub.get('ollama_model')}")
+                except Exception as pub_err:
+                    print(f"[worker] Ollama publish warning: {pub_err}")
         mark_succeeded(client, job_id)
         print(f"[worker] job {job_id} succeeded")
     except Exception as e:

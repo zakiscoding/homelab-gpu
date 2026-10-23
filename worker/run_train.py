@@ -61,6 +61,20 @@ def _run_stub(job_id: str, *, steps: int = 5, step_sleep_sec: float = 2.0) -> tu
     return root, manifest
 
 
+def _run_cnn(job_id: str, payload: dict[str, Any]) -> tuple[Path, dict]:
+    root = checkpoint_root() / job_id
+    root.mkdir(parents=True, exist_ok=True)
+    if (root / "published.json").exists():
+        manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+        return root, manifest
+
+    from training.cnn_quickstart.train import run_cnn  # noqa: WPS433
+
+    manifest = run_cnn(job_id, root, payload)
+    _write_published(root, job_id, manifest)
+    return root, manifest
+
+
 def _run_qlora(job_id: str, payload: dict[str, Any]) -> tuple[Path, dict]:
     root = checkpoint_root() / job_id
     root.mkdir(parents=True, exist_ok=True)
@@ -78,10 +92,18 @@ def _run_qlora(job_id: str, payload: dict[str, Any]) -> tuple[Path, dict]:
 def run_train(job_id: str, payload: dict[str, Any] | None = None) -> tuple[Path, dict[str, Any]]:
     """
     Run train job. Returns (artifact_dir, manifest).
-    TRAIN_MODE=stub for gate tests; default qlora.
+    Mode: payload train_mode > TRAIN_MODE env (stub | qlora | cnn).
     """
-    mode = os.environ.get("TRAIN_MODE", "qlora").lower()
+    try:
+        from training.cpu_io import configure_cpu_for_training
+
+        configure_cpu_for_training()
+    except Exception:
+        pass
     pl = payload or {}
+    mode = (pl.get("train_mode") or os.environ.get("TRAIN_MODE", "qlora")).lower()
     if mode == "stub":
         return _run_stub(job_id)
+    if mode == "cnn":
+        return _run_cnn(job_id, pl)
     return _run_qlora(job_id, pl)

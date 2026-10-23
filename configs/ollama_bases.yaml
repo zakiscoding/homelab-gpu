@@ -1,0 +1,17 @@
+# HF base_model (from train manifest) → Ollama publish strategy.
+# use_adapter: true  → FROM ollama_base + ADAPTER ./adapter (fp16 LoRA only; QLoRA may need merge)
+# use_adapter: false → merge PEFT into ./merged, then FROM absolute path to merged safetensors
+
+bases:
+  HuggingFaceTB/SmolLM2-360M-Instruct:
+    ollama_base: null
+    use_adapter: false
+    notes: SmolLM has no Ollama tag — merge adapter then import merged weights
+
+  meta-llama/Llama-3.2-3B-Instruct:
+    ollama_base: llama3.2:3b
+    use_adapter: false
+
+  meta-llama/Llama-3.2-1B-Instruct:
+    ollama_base: llama3.2:1b
+    use_adapter: false

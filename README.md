@@ -20,7 +20,7 @@
 - **QLoRA train worker** (`worker/`). It polls the iMac API for `train` jobs, claims one under a 15-minute lease, renews the lease every 5 minutes, trains, and reports the result.
 - **QLoRA trainer** (`training/lora_quickstart/`). PEFT + bitsandbytes 4-bit on SmolLM2-360M by default. Writes adapters to local disk, never to git.
 - **GPU metrics push.** `nvidia-smi` readings go to the iMac Pushgateway every minute.
-- **Reaction CNN** on `:8100`. Serves `POST /infer/reaction` for the homelab-web Reactions page. The serve code is not in this repo yet (see [Reaction vision](#reaction-vision-port-8100)).
+- **Reaction CNN** on `:8100` ([`reaction/`](reaction/)): a FastAPI service with `POST /infer/reaction` for the homelab-web Reactions page. It is trained by the **CNN mode** of the worker (`train_mode: cnn`, [`training/cnn_quickstart/`](training/cnn_quickstart/)), and runs are tracked in MLflow on the iMac (see [Reaction vision](#reaction-vision-port-8100)).
 - **PowerShell helpers** (`scripts/`) for the venv, Ollama, the worker, scheduled tasks, Jupyter, and adapter sync.
 
 ## Architecture
@@ -227,9 +227,18 @@ Check that no train job is running before you restart. An interrupted job's leas
 
 ### Reaction vision (port 8100)
 
-A FER CNN on `0.0.0.0:8100` serves `POST /infer/reaction` for the homelab-web Reactions page. The iMac reaches it through `GPU_VISION_URL` in the homelab-services `.env`. The serve code and its start script are **not in this repo yet**. Docs: [homelab vision-reactions.md](https://github.com/zakiscoding/homelab/blob/main/docs/services/vision-reactions.md).
+A FER CNN on `0.0.0.0:8100` serves the homelab-web Reactions page. The iMac reaches it through `GPU_VISION_URL` in the homelab-services `.env`. Docs: [homelab vision-reactions.md](https://github.com/zakiscoding/homelab/blob/main/docs/services/vision-reactions.md).
+
+| Piece | Where |
+|---|---|
+| HTTP service (`uvicorn reaction.serve:app`) | [`reaction/serve.py`](reaction/serve.py): `GET /health`, `GET /info`, `POST /infer/reaction` (`image_b64`, optional `threshold`; header `X-Reaction-Key` if `REACTION_SERVE_KEY` is set) |
+| Model loading and inference (largest face → ResNet) | [`reaction/infer_core.py`](reaction/infer_core.py); checkpoint from `REACTION_CHECKPOINT` |
+| Start / restart | `scripts/start-reaction-serve.ps1` (foreground), `start-reaction-serve-bg.ps1` (detached), `restart-reaction-serve.ps1`; port `VISION_SERVE_PORT` (default 8100) |
+| Training | worker CNN mode (`POST /jobs` with `train_mode: cnn`, or `scripts/submit-cnn-train.ps1`), [`training/cnn_quickstart/`](training/cnn_quickstart/), FER2013 loaders in [`training/fer2013_data.py`](training/fer2013_data.py) |
+| Experiment tracking | [`training/mlflow_util.py`](training/mlflow_util.py) → MLflow on the iMac `:5001` (`MLFLOW_*` in `.env.example`) |
 
 ```powershell
+.\scripts\start-reaction-serve-bg.ps1
 curl.exe http://127.0.0.1:8100/health
 ```
 

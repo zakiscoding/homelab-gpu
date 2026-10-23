@@ -47,6 +47,11 @@ def run_qlora(
     from peft import LoraConfig, get_peft_model
     from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
 
+    from training.cpu_io import configure_cpu_for_training, resolve_num_workers
+
+    cpu_info = configure_cpu_for_training()
+    print("[cpu-io]", cpu_info)
+
     stop_ollama()
     out_dir.mkdir(parents=True, exist_ok=True)
     adapter_dir = out_dir / "adapter"
@@ -102,8 +107,15 @@ def run_qlora(
         out["labels"] = [ids[:] for ids in out["input_ids"]]
         return out
 
-    tokenized = ds.map(tokenize, batched=True, remove_columns=ds.column_names)
+    map_workers = max(1, min(4, resolve_num_workers() // 2))
+    tokenized = ds.map(
+        tokenize,
+        batched=True,
+        remove_columns=ds.column_names,
+        num_proc=map_workers,
+    )
 
+    dl_workers = resolve_num_workers()
     args = TrainingArguments(
         output_dir=str(out_dir / "trainer_out"),
         max_steps=min(MAX_STEPS, len(tokenized)),
@@ -116,6 +128,8 @@ def run_qlora(
         report_to=[],
         fp16=torch.cuda.is_available(),
         gradient_checkpointing=True,
+        dataloader_num_workers=dl_workers,
+        dataloader_pin_memory=torch.cuda.is_available(),
     )
 
     trainer = Trainer(model=model, args=args, train_dataset=tokenized)
@@ -133,6 +147,8 @@ def run_qlora(
         "use_4bit": use_4bit,
         "max_steps": args.max_steps,
         "host": os.environ.get("COMPUTERNAME", "gpu"),
+        "cpu_io": cpu_info,
+        "dataloader_num_workers": dl_workers,
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return manifest
