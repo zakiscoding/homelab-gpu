@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import socket
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -33,6 +34,8 @@ WORKER_API_KEY = os.environ.get("WORKER_API_KEY", "")
 WORKER_ID = os.environ.get("WORKER_ID", socket.gethostname())
 WORKER_HOST = os.environ.get("WORKER_HOST", socket.gethostname())
 POLL_INTERVAL = float(os.environ.get("WORKER_POLL_SEC", "10"))
+# train leases are 15 min on the iMac API; renew every 5 so long QLoRA runs aren't requeued
+LEASE_RENEW_SEC = float(os.environ.get("WORKER_LEASE_RENEW_SEC", "300"))
 
 
 def _headers() -> dict[str, str]:
@@ -63,6 +66,36 @@ def reset_stale(client: httpx.Client) -> None:
         print(f"[worker] requeued {expired} lease-expired job(s)")
     if forced:
         print(f"[worker] force-reset {forced} stale running job(s)")
+
+
+class LeaseKeepAlive:
+    """Renew a job's lease in a background thread while training runs.
+
+    POST /internal/worker/jobs/{id}/renew every LEASE_RENEW_SEC with its own HTTP client. Without
+    it, a run longer than the 15-min lease is requeued by the API's lease sweep and can run twice.
+    Errors (e.g. 409: job taken over) are logged, never raised. Use as a context manager.
+    """
+
+    def __init__(self, job_id: str) -> None:
+        self.job_id = job_id
+        self.stop = threading.Event()
+        self.thread = threading.Thread(target=self._loop, daemon=True)
+
+    def _loop(self) -> None:
+        with httpx.Client(timeout=30.0) as c:
+            while not self.stop.wait(LEASE_RENEW_SEC):
+                try:
+                    c.post(f"{API_BASE}/internal/worker/jobs/{self.job_id}/renew", headers=_headers()).raise_for_status()
+                except httpx.HTTPError as e:
+                    print(f"[worker] lease renew failed for {self.job_id}: {e}")
+
+    def __enter__(self) -> "LeaseKeepAlive":
+        self.thread.start()
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.stop.set()
+        self.thread.join(timeout=5)
 
 
 def claim_job(client: httpx.Client) -> dict | None:
@@ -123,7 +156,8 @@ def run_once(client: httpx.Client) -> bool:
     print(f"[worker] claimed job {job_id} (attempt={attempt})")
     payload = job.get("payload") or {}
     try:
-        artifact_dir, manifest = run_train(job_id, payload)
+        with LeaseKeepAlive(job_id):
+            artifact_dir, manifest = run_train(job_id, payload)
         print(f"[worker] artifacts at {artifact_dir}")
         try:
             register_experiment(client, job_id, manifest)
