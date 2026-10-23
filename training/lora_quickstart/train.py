@@ -22,9 +22,11 @@ DATASET_DIR = Path(os.environ.get("DATASET_DIR", r"C:\Users\zakar\homelab-data\d
 def stop_ollama() -> None:
     script = _REPO / "scripts" / "stop-ollama.ps1"
     if sys.platform == "win32" and script.exists():
+        flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         subprocess.run(
             ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
             check=False,
+            creationflags=flags,
         )
 
 

@@ -10,11 +10,11 @@ if (-not (Test-Path $Script)) {
 }
 
 $action = New-ScheduledTaskAction -Execute "powershell.exe" `
-    -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$Script`"" `
+    -Argument "-WindowStyle Hidden -NoProfile -ExecutionPolicy Bypass -File `"$Script`"" `
     -WorkingDirectory $Repo
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
-    -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+    -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -Hidden
 
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger `
     -Settings $settings -Description "Poll iMac API for train jobs (homelab Phase 0/1)" -Force

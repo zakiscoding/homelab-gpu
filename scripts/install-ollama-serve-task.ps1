@@ -16,7 +16,7 @@ $action = New-ScheduledTaskAction -Execute $ollama -Argument "serve" `
   -WorkingDirectory (Split-Path $ollama)
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
-  -RestartInterval (New-TimeSpan -Minutes 1) -RestartCount 999
+  -RestartInterval (New-TimeSpan -Minutes 1) -RestartCount 999 -Hidden
 $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Highest
 
 Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger `
