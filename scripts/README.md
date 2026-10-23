@@ -44,7 +44,10 @@
 | Script | Purpose |
 |--------|---------|
 | `push-gpu-metrics.ps1` | Push utilization, memory, and temperature from `nvidia-smi` to the iMac Pushgateway (`PUSHGATEWAY_URL`) |
-| `register-gpu-metrics-task.ps1` | Register `HomelabGpuMetrics` (runs `push-gpu-metrics.ps1` every 1 min) |
+| `register-gpu-metrics-task.ps1` | Register `HomelabGpuMetrics` (runs `push-gpu-metrics.ps1` every 1 min, through `run-hidden-powershell.vbs` so no console flashes) |
+| `run-hidden-powershell.vbs` | Run a `.ps1` with no visible window. Scheduled tasks launch PowerShell through it |
+| `fix-console-popups.ps1` | **Administrator.** Re-register `HomelabGpuMetrics` and `HomelabOllamaServe` as hidden tasks and disable the duplicate `OllamaServe` task |
+| `hide-homelab-tasks.ps1` | Set the Hidden flag on existing homelab tasks. Lighter than `fix-console-popups.ps1`, but PowerShell can still flash |
 | `start-jupyter.ps1` | JupyterLab on `127.0.0.1:8888` (`JUPYTER_LISTEN` and `JUPYTER_PORT` override). See [notebooks](../notebooks/README.md) |
 
 ## Common commands
