@@ -174,6 +174,26 @@ def run_once(client: httpx.Client) -> bool:
     return True
 
 
+def wait_for_api(client: httpx.Client, timeout_s: float = 600.0) -> None:
+    """Block until the iMac API answers /health (backoff 1 s -> 30 s).
+
+    At Windows boot the scheduled task can start before Tailscale reaches the iMac; without this
+    the startup reset-stale call raised and the worker exited. Gives up after ``timeout_s``.
+    """
+    deadline = time.monotonic() + timeout_s
+    delay = 1.0
+    while True:
+        try:
+            client.get(f"{API_BASE}/health", timeout=10.0).raise_for_status()
+            return
+        except httpx.HTTPError as e:
+            if time.monotonic() > deadline:
+                raise
+            print(f"[worker] waiting for API ({e.__class__.__name__}); retry in {delay:.0f}s")
+            time.sleep(delay)
+            delay = min(delay * 2, 30.0)
+
+
 def main() -> None:
     import argparse
 
@@ -192,6 +212,7 @@ def main() -> None:
     )
     train_timeout = float(os.environ.get("WORKER_TRAIN_TIMEOUT_SEC", "1800"))
     with httpx.Client(timeout=train_timeout) as client:
+        wait_for_api(client)
         reset_stale(client)
         while True:
             try:
