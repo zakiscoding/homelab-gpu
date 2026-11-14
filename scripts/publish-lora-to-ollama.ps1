@@ -1,4 +1,4 @@
-# Publish a succeeded train job to Ollama (merge QLoRA adapter → ollama create).
+# Publish a succeeded train job to Ollama (merge QLoRA adapter -> ollama create).
 # Usage:
 #   .\scripts\publish-lora-to-ollama.ps1 -JobId <uuid>
 #   .\scripts\publish-lora-to-ollama.ps1 -JobId <uuid> -OllamaName "homelab-smoke-lora-v1"

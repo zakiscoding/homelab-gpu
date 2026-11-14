@@ -1,4 +1,4 @@
-# Distributed CNN train: iMac shards batches (train_prep) → GPU trains with AMP.
+# Distributed CNN train: iMac shards batches (train_prep) -> GPU trains with AMP.
 param(
     [string]$ApiUrl = "http://100.91.113.98:3080/api/homelab",
     [string]$ApiKey = $env:HOMELAB_API_KEY,
@@ -51,7 +51,7 @@ $bodyJson = $body | ConvertTo-Json -Compress
 
 $h = @{ "x-api-key" = $ApiKey; "Content-Type" = "application/json" }
 $job = Invoke-RestMethod -Uri "$ApiUrl/jobs" -Method Post -Headers $h -Body $bodyJson
-Write-Host "Train job $($job.id) — iMac will run train_prep ($ShardCount shards), then GPU claims train."
+Write-Host "Train job $($job.id) - iMac will run train_prep ($ShardCount shards), then GPU claims train."
 Write-Host "Ensure imac-worker + GPU worker are running."
 
 if ($Wait) {
