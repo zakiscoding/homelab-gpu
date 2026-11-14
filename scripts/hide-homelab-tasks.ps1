@@ -1,4 +1,4 @@
-# Prefer fix-console-popups.ps1 (Admin) — Hidden alone does not stop powershell flashes.
+# Prefer fix-console-popups.ps1 (Admin) - Hidden alone does not stop powershell flashes.
 # This only sets the Hidden flag on existing tasks.
 $ErrorActionPreference = "Stop"
 Write-Warning "If consoles still flash, run as Admin: .\scripts\fix-console-popups.ps1"
