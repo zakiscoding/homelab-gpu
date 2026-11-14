@@ -1,4 +1,4 @@
-# Distributed FER/reaction train: iMac shards indices (CPU) → GPU trains (CUDA).
+# Distributed FER/reaction train: iMac shards indices (CPU) -> GPU trains (CUDA).
 # Uses official FER2013 PublicTest for val (val_ratio=0 in plan).
 param(
     [string]$ApiUrl = "http://100.91.113.98:3080/api/homelab",
@@ -47,7 +47,7 @@ $body = @{
 $h = @{ "x-api-key" = $ApiKey; "Content-Type" = "application/json" }
 $job = Invoke-RestMethod -Uri "$ApiUrl/jobs" -Method Post -Headers $h -Body $body
 Write-Host "Reaction train job $($job.id)"
-Write-Host "  iMac: train_prep ($ShardCount shards, val_ratio=0 → GPU uses FER PublicTest)"
+Write-Host "  iMac: train_prep ($ShardCount shards, val_ratio=0 -> GPU uses FER PublicTest)"
 Write-Host "  GPU:  claims train when plan ready (ensure imac-worker + GPU worker running)"
 Write-Host "Prereq on zak_pc: fer2013.csv + fer2013new.csv under homelab-data\datasets\fer2013\"
 

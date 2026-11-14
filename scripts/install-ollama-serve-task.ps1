@@ -1,4 +1,4 @@
-# Run once on GPU PC as Administrator — keeps Ollama on 0.0.0.0:11434 across reboots.
+# Run once on GPU PC as Administrator - keeps Ollama on 0.0.0.0:11434 across reboots.
 #Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
 
@@ -34,7 +34,7 @@ Start-ScheduledTask -TaskName $taskName
 Start-Sleep -Seconds 8
 
 $listen = Get-NetTCPConnection -LocalPort 11434 -State Listen -ErrorAction SilentlyContinue
-if (-not $listen) { throw "Ollama not listening — check Task Scheduler > $taskName" }
+if (-not $listen) { throw "Ollama not listening - check Task Scheduler > $taskName" }
 
 Write-Host "OK: Ollama on port 11434"
 Write-Host "Listen:" (($listen | ForEach-Object { $_.LocalAddress }) -join ", ")

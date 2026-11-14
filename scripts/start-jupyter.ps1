@@ -1,5 +1,5 @@
-# Start JupyterLab for fine-tuning notebooks (GPU PC — zakar)
-# Default: http://127.0.0.1:8888 — use Tailscale IP from laptop if firewall allows 8888
+# Start JupyterLab for fine-tuning notebooks (GPU PC - zakar)
+# Default: http://127.0.0.1:8888 - use Tailscale IP from laptop if firewall allows 8888
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot\..
 

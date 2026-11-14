@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# The training, inference and worker code needs the RTX 5070 and the homelab's
+# job API, so CI does not run it (scripts/test_cuda.py and test-reaction-*.py
+# are manual checks on the GPU PC). It checks syntax and undefined names instead.
+jobs:
+  python:
+    name: Python lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.17.5
+      # E9/F63/F7/F82: syntax errors, bad comparisons, misplaced statements, undefined names.
+      - run: ruff check --select E9,F63,F7,F82 --output-format github .
+      - run: python -m compileall -q reaction training worker scripts
+
+  powershell:
+    # Windows PowerShell 5.1 is what runs these scripts on the GPU PC. It reads a
+    # UTF-8 file without a BOM as ANSI, so a stray em-dash can end a string early.
+    # Parsing with 5.1 (not pwsh 7) catches that.
+    name: PowerShell 5.1 parse
+    runs-on: windows-2025
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - shell: powershell
+        run: ./scripts/ci/parse-powershell.ps1
