@@ -42,7 +42,7 @@ Register-HiddenTask -TaskName "HomelabGpuMetrics" `
   -Trigger $metricsTrigger `
   -Description "Push GPU metrics to iMac (no console)"
 
-# Ollama: never use .bat — it leaves a visible cmd window
+# Ollama: never use .bat - it leaves a visible cmd window
 $ollamaTrigger = (Get-ScheduledTask -TaskName "HomelabOllamaServe" -ErrorAction SilentlyContinue).Triggers
 if (-not $ollamaTrigger) {
   $ollamaTrigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
@@ -53,7 +53,7 @@ Register-HiddenTask -TaskName "HomelabOllamaServe" `
   -Trigger $ollamaTrigger `
   -Description "Ollama serve 0.0.0.0:11434 (no console)"
 
-# Legacy duplicate task — hide or disable if present
+# Legacy duplicate task - hide or disable if present
 foreach ($legacy in @("OllamaServe")) {
   $t = Get-ScheduledTask -TaskName $legacy -ErrorAction SilentlyContinue
   if ($t) {

@@ -6,7 +6,7 @@ $Script = Join-Path $Repo "scripts\start-gpu-worker-bg.ps1"
 $TaskName = "HomelabGpuTrainWorker"
 
 if (-not (Test-Path $Script)) {
-    throw "Missing $Script — git pull homelab-gpu first"
+    throw "Missing $Script - git pull homelab-gpu first"
 }
 
 $action = New-ScheduledTaskAction -Execute "powershell.exe" `

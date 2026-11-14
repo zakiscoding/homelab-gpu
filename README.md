@@ -4,7 +4,7 @@
 
 **The Windows side of the RTX 5070 GPU PC: Ollama inference, the QLoRA train worker for the iMac job queue, and GPU metrics.**
 
-![OS](https://img.shields.io/badge/OS-Windows%20boot-0078d4?style=flat-square&logo=windows&logoColor=white) ![GPU](https://img.shields.io/badge/GPU-RTX%205070%2012%20GB-76b900?style=flat-square&logo=nvidia&logoColor=white) ![inference](https://img.shields.io/badge/inference-Ollama-333333?style=flat-square&logo=ollama&logoColor=white) ![training](https://img.shields.io/badge/training-QLoRA-ee4c2c?style=flat-square&logo=pytorch&logoColor=white)
+[![CI](https://github.com/zakiscoding/homelab-gpu/actions/workflows/ci.yml/badge.svg)](https://github.com/zakiscoding/homelab-gpu/actions/workflows/ci.yml) ![OS](https://img.shields.io/badge/OS-Windows%20boot-0078d4?style=flat-square&logo=windows&logoColor=white) ![GPU](https://img.shields.io/badge/GPU-RTX%205070%2012%20GB-76b900?style=flat-square&logo=nvidia&logoColor=white) ![inference](https://img.shields.io/badge/inference-Ollama-333333?style=flat-square&logo=ollama&logoColor=white) ![training](https://img.shields.io/badge/training-QLoRA-ee4c2c?style=flat-square&logo=pytorch&logoColor=white)
 
 [homelab](https://github.com/zakiscoding/homelab) (docs hub) · [homelab-services](https://github.com/zakiscoding/homelab-services) · [homelab-web](https://github.com/zakiscoding/homelab-web) · **homelab-gpu** · [gpu-systems-lab](https://github.com/zakiscoding/gpu-systems-lab)
 
